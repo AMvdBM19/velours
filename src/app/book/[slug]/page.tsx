@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { autoTextColor, widgetBgToHex } from '@/lib/utils/contrast';
 
 interface CatalogWorker {
@@ -38,6 +38,8 @@ interface AvailableSlot {
 
 export default function BookingWidget() {
   const { slug } = useParams<{ slug: string }>();
+  const searchParams = useSearchParams();
+  const isEmbed = searchParams.get('embed') === 'true';
   const [workers, setWorkers] = useState<CatalogWorker[]>([]);
   const [widget, setWidget] = useState<WidgetSettings | null>(null);
   const [tenantName, setTenantName] = useState('');
@@ -70,6 +72,17 @@ export default function BookingWidget() {
   }, [slug]);
 
   useEffect(() => { loadCatalog(); }, [loadCatalog]);
+
+  // Embed mode: notify parent of height changes for auto-resize
+  useEffect(() => {
+    if (!isEmbed) return;
+    const observer = new ResizeObserver(() => {
+      const height = document.documentElement.scrollHeight;
+      window.parent.postMessage({ type: 'velours-resize', height }, '*');
+    });
+    observer.observe(document.body);
+    return () => observer.disconnect();
+  }, [isEmbed]);
 
   async function loadSlots(workerId: string) {
     setLoadingSlots(true);

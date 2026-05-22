@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { withCors, handlePreflight } from '@/lib/cors';
 
 /**
  * GET /[slug]/api/catalog
@@ -86,9 +87,20 @@ export async function GET(
     .eq('tenant_id', tenant.id)
     .single();
 
-  return NextResponse.json({
+  const origin = request.headers.get('origin');
+  const response = NextResponse.json({
     workers: formatted,
     widget: settings ?? {},
     tenant: { slug, name: settings?.agency_display_name || slug },
   });
+
+  return withCors(response, origin);
+}
+
+/**
+ * OPTIONS /[slug]/api/catalog
+ * CORS preflight for embed widget.
+ */
+export function OPTIONS(request: NextRequest) {
+  return handlePreflight(request);
 }

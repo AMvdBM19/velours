@@ -122,8 +122,14 @@ export async function POST(
     changed_by: 'system',
   });
 
-  // TODO: Phase 6 — trigger agent_notification for new client signup
-  // TODO: If auto-approved, send WA/email notification to client
+  // Notify agent of new signup
+  const { notifyClientSignup, notifyClientApproved } = await import('@/lib/notifications/dispatch');
+  await notifyClientSignup(tenant.id, client.id, display_name);
+
+  // If auto-approved and WA opted in, send confirmation
+  if (initialStatus === 'approved' && wa_opt_in && phone) {
+    await notifyClientApproved(tenant.id, phone, true, display_name);
+  }
 
   return NextResponse.json({
     client: {

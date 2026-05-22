@@ -252,9 +252,37 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // TODO: Notifications
-  // - client_request: notify worker in-platform
-  // - manual + client has wa_opt_in: send WA booking confirmation
+  // Dispatch notifications
+  const { notifyBookingRequest, notifyBookingConfirmed } = await import('@/lib/notifications/dispatch');
+
+  if (!isManual && booking) {
+    // Client request → notify agent (in-platform)
+    const { data: workerData } = await supabase.from('workers').select('pseudonym').eq('id', worker_id).single();
+    const { data: clientData } = await supabase.from('clients').select('display_name').eq('id', clientId).single();
+    await notifyBookingRequest(
+      user.tenantId, booking.id,
+      workerData?.pseudonym || 'Worker',
+      clientData?.display_name || 'Client',
+      slot_date, slot_start
+    );
+  }
+
+  if (isManual && booking && clientId) {
+    // Manual booking → WA to client if opted in
+    const { data: clientData } = await supabase
+      .from('clients')
+      .select('phone, wa_opt_in, display_name')
+      .eq('id', clientId)
+      .single();
+
+    if (clientData) {
+      await notifyBookingConfirmed(user.tenantId, booking.id, clientData.phone, clientData.wa_opt_in, {
+        client_name: clientData.display_name,
+        date: slot_date,
+        time: slot_start.slice(0, 5),
+      });
+    }
+  }
 
   return NextResponse.json({
     booking,

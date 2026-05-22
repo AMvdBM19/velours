@@ -101,9 +101,6 @@ export async function POST(request: NextRequest) {
     }
 
     if (behaviour === 'require_acknowledgement') {
-      // Set status to offline but flag for agent acknowledgement
-      // For now, set offline immediately but log for agent review
-      // TODO: Phase 6 — add agent_notifications entry for acknowledgement
       const { error } = await supabase
         .from('workers')
         .update({ status: 'offline', offline_reason: reason })
@@ -111,6 +108,12 @@ export async function POST(request: NextRequest) {
         .eq('tenant_id', user.tenantId);
 
       if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+      // Notify agent
+      const { data: w } = await supabase.from('workers').select('pseudonym').eq('id', workerId).single();
+      const { notifyWorkerOffline } = await import('@/lib/notifications/dispatch');
+      await notifyWorkerOffline(user.tenantId, workerId, w?.pseudonym || 'Worker', reason || 'No reason');
+
       return NextResponse.json({ status: 'offline', requires_acknowledgement: true });
     }
   }
@@ -123,5 +126,13 @@ export async function POST(request: NextRequest) {
     .eq('tenant_id', user.tenantId);
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+
+  // Notify agent when worker goes offline
+  if (user.role === 'worker') {
+    const { data: w } = await supabase.from('workers').select('pseudonym').eq('id', workerId).single();
+    const { notifyWorkerOffline } = await import('@/lib/notifications/dispatch');
+    await notifyWorkerOffline(user.tenantId, workerId, w?.pseudonym || 'Worker', reason || 'No reason');
+  }
+
   return NextResponse.json({ status: 'offline' });
 }
