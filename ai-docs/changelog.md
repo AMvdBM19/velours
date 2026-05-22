@@ -1,5 +1,17 @@
 # Velours ERP — AI Docs Changelog
 
+## Phase 4 — Worker Flow (2026-05-22)
+- Worker onboarding wizard: 4-step (Identity, Photos, Services, Schedule)
+- Forced password change → onboarding redirect in layout
+- Worker profile management page (bio, photos, tags, languages — no approval)
+- 3-layer availability: weekly schedule + exceptions/time-off + auto-block
+- Availability query API: computes bookable slots from schedule minus exceptions minus bookings
+- Booking inbox: pending/upcoming/past tabs, accept/reject with notification stubs
+- Post-service rating: 1-5 stars + private note + blacklist flag
+- Offline toggle in sidebar: respects tenant offline_behaviour (auto/acknowledge/blocked)
+- Worker KPI dashboard with booking stats and earnings
+- 8 API routes: profile, schedule, exceptions, bookings, offline, rating, tags, onboarding
+
 ## Phase 3 — Onboarding Wizard (2026-05-22)
 - 8-step setup wizard with auto-save on step transitions
 - Steps: Identity, Financial, Booking Rules, Client Approval, Branding, Templates, Service Tags, Review & Launch

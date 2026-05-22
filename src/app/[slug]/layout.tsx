@@ -25,13 +25,15 @@ export default async function TenantLayout({ children, params }: TenantLayoutPro
     return <>{children}</>;
   }
 
-  // Worker with first_login = true → redirect to change password
-  if (user.role === 'worker') {
+  let workerStatus: string | undefined;
+
+  // Worker checks: first_login → change password, wizard not completed → onboarding
+  if (user.role === 'worker' && user.workerId) {
     const { createClient } = await import('@/lib/supabase/server');
     const supabase = await createClient();
     const { data: worker } = await supabase
       .from('workers')
-      .select('first_login')
+      .select('first_login, wizard_completed, status')
       .eq('id', user.workerId)
       .eq('tenant_id', user.tenantId)
       .single();
@@ -39,6 +41,12 @@ export default async function TenantLayout({ children, params }: TenantLayoutPro
     if (worker?.first_login) {
       redirect(`/${slug}/change-password`);
     }
+
+    if (worker && !worker.wizard_completed) {
+      redirect(`/${slug}/onboarding`);
+    }
+
+    workerStatus = worker?.status as string | undefined;
   }
 
   // Verify tenant_id matches
@@ -57,6 +65,7 @@ export default async function TenantLayout({ children, params }: TenantLayoutPro
         slug={slug}
         role={user.role}
         agencyName={tenant.name}
+        workerStatus={workerStatus}
       />
       <main className="flex-1 overflow-y-auto">
         <div className="p-6">
