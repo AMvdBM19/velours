@@ -1,5 +1,16 @@
 # Velours ERP — AI Docs Changelog
 
+## Phase 5 — Client Flow & Booking Engine (2026-05-22)
+- Client self-registration with auto/manual approval per tenant settings
+- Client status management API (approve/reject/suspend/reinstate) with status log
+- Client profile API with ratings and status history (agent view)
+- Booking engine: availability check (3-layer), pricing snapshot, lead time validation
+- Booking creation: client_request (pending_worker) and manual (confirmed directly)
+- Location types: incall/outcall with address handling (outcall: city-only pre-acceptance)
+- Catalog API: public worker listing with tag filtering and widget branding
+- Client-facing booking widget at /book/[slug] with age gate, catalog (grid/list/minimal), slot picker
+- Widget respects tenant branding (colors, layout, background, fonts)
+
 ## Phase 4 — Worker Flow (2026-05-22)
 - Worker onboarding wizard: 4-step (Identity, Photos, Services, Schedule)
 - Forced password change → onboarding redirect in layout
