@@ -312,3 +312,62 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ bookings: data });
 }
+
+/**
+ * PATCH /[slug]/api/booking
+ * Agent changes booking status (complete, no_show, cancel).
+ * Body: { booking_id, status }
+ */
+export async function PATCH(request: NextRequest) {
+  const guard = await apiGuard(request, ['agent']);
+  if ('error' in guard) return guard.error;
+  const { user } = guard;
+
+  const body = await request.json();
+  const { booking_id, status: newStatus } = body as {
+    booking_id: string;
+    status: string;
+  };
+
+  if (!booking_id || !newStatus) {
+    return NextResponse.json({ error: 'booking_id and status required' }, { status: 400 });
+  }
+
+  const allowed = ['confirmed', 'completed', 'no_show', 'cancelled'];
+  if (!allowed.includes(newStatus)) {
+    return NextResponse.json(
+      { error: `Invalid status. Allowed: ${allowed.join(', ')}` },
+      { status: 400 }
+    );
+  }
+
+  const supabase = getSupabase(request);
+
+  // Verify booking belongs to tenant
+  const { data: existing } = await supabase
+    .from('bookings')
+    .select('id, status')
+    .eq('id', booking_id)
+    .eq('tenant_id', user.tenantId)
+    .single();
+
+  if (!existing) {
+    return NextResponse.json({ error: 'Booking not found' }, { status: 404 });
+  }
+
+  const updates: Record<string, unknown> = { status: newStatus };
+  if (newStatus === 'confirmed') updates.confirmed_at = new Date().toISOString();
+  if (newStatus === 'completed') updates.completed_at = new Date().toISOString();
+
+  const { error } = await supabase
+    .from('bookings')
+    .update(updates)
+    .eq('id', booking_id)
+    .eq('tenant_id', user.tenantId);
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  return NextResponse.json({ success: true, booking_id, status: newStatus });
+}
