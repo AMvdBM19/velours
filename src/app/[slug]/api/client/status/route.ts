@@ -96,7 +96,25 @@ export async function PATCH(request: NextRequest) {
     changed_by: user.id,
   });
 
-  // TODO: Send notification to client (email for reject/suspend, WA for approve)
+  // Send WA notification to client if approved and opted in
+  if (new_status === 'approved') {
+    const { notifyClientApproved } = await import('@/lib/notifications/dispatch');
+    const { data: clientData } = await supabase
+      .from('clients')
+      .select('phone, wa_opt_in, display_name')
+      .eq('id', client_id)
+      .eq('tenant_id', user.tenantId)
+      .single();
+
+    if (clientData) {
+      await notifyClientApproved(
+        user.tenantId,
+        clientData.phone,
+        clientData.wa_opt_in,
+        clientData.display_name
+      );
+    }
+  }
 
   return NextResponse.json({
     client_id,
