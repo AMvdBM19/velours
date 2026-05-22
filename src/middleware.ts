@@ -64,7 +64,7 @@ export async function middleware(request: NextRequest) {
 
   if (user && !isPublicRoute) {
     // Authenticated — check wizard redirect
-    if (!tenant.wizard_completed && !subPath.startsWith('/setup')) {
+    if (!tenant.wizard_completed && !subPath.startsWith('/setup') && !subPath.startsWith('/onboarding') && !subPath.startsWith('/change-password')) {
       return NextResponse.redirect(new URL(`/${slug}/setup`, request.url));
     }
   }
