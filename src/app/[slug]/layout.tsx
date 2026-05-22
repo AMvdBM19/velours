@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getAuthenticatedUser } from '@/lib/auth/session';
 import { resolveTenant } from '@/lib/auth/tenant';
 import Sidebar from '@/components/layout/Sidebar';
+import AssistantChat from '@/components/ai/AssistantChat';
 
 interface TenantLayoutProps {
   children: React.ReactNode;
@@ -59,6 +60,19 @@ export default async function TenantLayout({ children, params }: TenantLayoutPro
     redirect(`/${slug}/setup`);
   }
 
+  // Check if AI assistant is enabled (agent only)
+  let aiEnabled = false;
+  if (user.role === 'agent') {
+    const { createClient } = await import('@/lib/supabase/server');
+    const supabase = await createClient();
+    const { data: settings } = await supabase
+      .from('tenant_settings')
+      .select('ai_assistant_enabled')
+      .eq('tenant_id', user.tenantId)
+      .single();
+    aiEnabled = settings?.ai_assistant_enabled || false;
+  }
+
   return (
     <div className="flex h-screen bg-gray-50">
       <Sidebar
@@ -72,6 +86,9 @@ export default async function TenantLayout({ children, params }: TenantLayoutPro
           {children}
         </div>
       </main>
+      {user.role === 'agent' && (
+        <AssistantChat slug={slug} enabled={aiEnabled} />
+      )}
     </div>
   );
 }

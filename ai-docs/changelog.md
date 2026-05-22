@@ -1,5 +1,39 @@
 # Velours ERP — AI Docs Changelog
 
+## Phase 9 — AI Assistant (2026-05-23)
+- Streaming AI assistant endpoint with tool use support
+- Multi-LLM adapter: Anthropic Claude and OpenAI GPT-4o providers
+- 7 tools: get_upcoming_bookings, get_worker_availability, search_workers, search_clients, get_finance_summary, check_slot_availability, create_manual_booking
+- Context-aware document loading based on current ERP page
+- Floating chat UI with slide-in panel (agent-only, hidden if no LLM key)
+- Write tools (create_manual_booking) require explicit user confirmation
+- All tools are tenant-scoped — zero cross-tenant data leakage
+- GDPR: message history kept in session only, not persisted
+
+## Phase 8 — Embed Widget & Notifications (2026-05-23)
+- Embeddable booking widget (embed.js script tag with iframe popup)
+- CORS headers for cross-origin widget embedding
+- X-Frame-Options configured for /book/* routes
+- Notification dispatch system: in-platform + WhatsApp Cloud API
+- WhatsApp degrades gracefully (no config = silent skip)
+- Notifications wired into: client registration, client approval, booking creation, worker offline
+
+## Phase 7 — Super Admin API (2026-05-22)
+- API key-authenticated server-to-server endpoints
+- Tenant management: list, create, detail, status change
+- Default settings and notification template seeding on tenant creation
+- Aggregate platform stats endpoint
+
+## Phase 6 — Agent ERP Modules (2026-05-22)
+- Agent dashboard with real-time stats
+- Worker management table with create form and status toggles
+- Client management with approval workflow (approve/reject/suspend/reinstate)
+- Role-aware bookings page (agent table view + worker card view)
+- Notifications action inbox with type badges and priority sorting
+- Finances page with per-worker breakdown and CSV export
+- Settings editor with section navigation and locked field enforcement
+- Agent API routes: workers CRUD, notifications, finance, settings
+
 ## Phase 5 — Client Flow & Booking Engine (2026-05-22)
 - Client self-registration with auto/manual approval per tenant settings
 - Client status management API (approve/reject/suspend/reinstate) with status log
