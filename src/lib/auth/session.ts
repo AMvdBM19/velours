@@ -1,11 +1,13 @@
+import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
 import type { AuthenticatedUser, UserRole } from '@/lib/types/auth';
 
 /**
  * Get the authenticated user with JWT custom claims.
  * Returns null if no valid session exists.
+ * Wrapped in React cache() to deduplicate within a single request/render.
  */
-export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> {
+export const getAuthenticatedUser = cache(async (): Promise<AuthenticatedUser | null> => {
   const supabase = await createClient();
 
   const { data: { user }, error } = await supabase.auth.getUser();
@@ -28,7 +30,7 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
     workerId: appMeta.worker_id,
     clientId: appMeta.client_id,
   };
-}
+});
 
 /**
  * Decode JWT payload without verification (verification is done by Supabase).

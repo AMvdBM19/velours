@@ -26,12 +26,24 @@ export default async function TenantLayout({ children, params }: TenantLayoutPro
     return <>{children}</>;
   }
 
-  let workerStatus: string | undefined;
+  // Verify tenant_id matches
+  if (user.tenantId !== tenant.tenantId) {
+    redirect(`/${slug}/login`);
+  }
 
-  // Worker checks: first_login → change password, wizard not completed → onboarding
+  // Wizard redirect for agents
+  if (user.role === 'agent' && !tenant.wizardCompleted) {
+    redirect(`/${slug}/setup`);
+  }
+
+  // Run role-specific DB checks in parallel (single Supabase client, concurrent queries)
+  const { createClient } = await import('@/lib/supabase/server');
+  const supabase = await createClient();
+
+  let workerStatus: string | undefined;
+  let aiEnabled = false;
+
   if (user.role === 'worker' && user.workerId) {
-    const { createClient } = await import('@/lib/supabase/server');
-    const supabase = await createClient();
     const { data: worker } = await supabase
       .from('workers')
       .select('first_login, wizard_completed, status')
@@ -48,23 +60,7 @@ export default async function TenantLayout({ children, params }: TenantLayoutPro
     }
 
     workerStatus = worker?.status as string | undefined;
-  }
-
-  // Verify tenant_id matches
-  if (user.tenantId !== tenant.tenantId) {
-    redirect(`/${slug}/login`);
-  }
-
-  // Wizard redirect for agents
-  if (user.role === 'agent' && !tenant.wizardCompleted) {
-    redirect(`/${slug}/setup`);
-  }
-
-  // Check if AI assistant is enabled (agent only)
-  let aiEnabled = false;
-  if (user.role === 'agent') {
-    const { createClient } = await import('@/lib/supabase/server');
-    const supabase = await createClient();
+  } else if (user.role === 'agent') {
     const { data: settings } = await supabase
       .from('tenant_settings')
       .select('ai_assistant_enabled')

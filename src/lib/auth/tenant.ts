@@ -1,3 +1,4 @@
+import { cache } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import type { TenantContext } from '@/lib/types/auth';
 
@@ -12,8 +13,9 @@ function getServiceClient() {
 /**
  * Resolve a tenant by slug. Uses service role to bypass RLS
  * since the user may not be authenticated yet.
+ * Wrapped in React cache() to deduplicate within a single request/render.
  */
-export async function resolveTenant(slug: string): Promise<TenantContext | null> {
+export const resolveTenant = cache(async (slug: string): Promise<TenantContext | null> => {
   const supabase = getServiceClient();
 
   const { data, error } = await supabase
@@ -31,4 +33,4 @@ export async function resolveTenant(slug: string): Promise<TenantContext | null>
     isActive: data.is_active,
     wizardCompleted: data.wizard_completed,
   };
-}
+});
