@@ -16,6 +16,33 @@ function getSupabase(request: NextRequest) {
 }
 
 /**
+ * GET /[slug]/api/worker/rating
+ * Returns aggregate rating stats for the current worker (ratings they gave).
+ */
+export async function GET(request: NextRequest) {
+  const guard = await apiGuard(request, ['worker']);
+  if ('error' in guard) return guard.error;
+  const { user } = guard;
+
+  const supabase = getSupabase(request);
+  const { data: ratings } = await supabase
+    .from('client_ratings')
+    .select('score')
+    .eq('worker_id', user.workerId)
+    .eq('tenant_id', user.tenantId);
+
+  const scores = (ratings || []).map((r: { score: number }) => r.score);
+  const avgRating = scores.length > 0
+    ? Math.round((scores.reduce((a: number, b: number) => a + b, 0) / scores.length) * 10) / 10
+    : null;
+
+  return NextResponse.json({
+    avgRating,
+    ratingCount: scores.length,
+  });
+}
+
+/**
  * POST /[slug]/api/worker/rating
  * Worker submits post-service rating for a client.
  * Body: { booking_id, score (1-5), note?, blacklist_flag?: { reason } }

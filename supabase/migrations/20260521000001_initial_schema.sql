@@ -24,7 +24,7 @@ CREATE TABLE tenants (
 ALTER TABLE tenants ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON tenants
-  USING (id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 2. AGENTS
@@ -41,7 +41,7 @@ CREATE TABLE agents (
 ALTER TABLE agents ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON agents
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 3. WORKERS
@@ -74,7 +74,7 @@ CREATE TABLE workers (
 ALTER TABLE workers ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON workers
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 4. CLIENTS
@@ -100,7 +100,7 @@ CREATE TABLE clients (
 ALTER TABLE clients ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON clients
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 5. SERVICE_TAGS
@@ -119,7 +119,7 @@ CREATE TABLE service_tags (
 ALTER TABLE service_tags ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON service_tags
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 6. WORKER_SCHEDULE
@@ -137,7 +137,7 @@ CREATE TABLE worker_schedule (
 ALTER TABLE worker_schedule ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON worker_schedule
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 7. WORKER_EXCEPTIONS
@@ -155,7 +155,7 @@ CREATE TABLE worker_exceptions (
 ALTER TABLE worker_exceptions ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON worker_exceptions
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 8. BOOKINGS
@@ -195,7 +195,7 @@ CREATE TABLE bookings (
 ALTER TABLE bookings ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON bookings
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 9. BOOKING_SERVICE_TAGS
@@ -212,7 +212,7 @@ CREATE TABLE booking_service_tags (
 ALTER TABLE booking_service_tags ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON booking_service_tags
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 10. WORKER_SERVICE_TAGS
@@ -227,7 +227,7 @@ CREATE TABLE worker_service_tags (
 ALTER TABLE worker_service_tags ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON worker_service_tags
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 11. CLIENT_RATINGS
@@ -246,7 +246,7 @@ CREATE TABLE client_ratings (
 ALTER TABLE client_ratings ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON client_ratings
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 12. BLACKLIST_FLAGS
@@ -268,7 +268,7 @@ CREATE TABLE blacklist_flags (
 ALTER TABLE blacklist_flags ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON blacklist_flags
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 13. CLIENT_STATUS_LOG
@@ -287,7 +287,7 @@ CREATE TABLE client_status_log (
 ALTER TABLE client_status_log ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON client_status_log
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 14. NOTIFICATION_LOG
@@ -309,7 +309,7 @@ CREATE TABLE notification_log (
 ALTER TABLE notification_log ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON notification_log
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 15. AGENT_NOTIFICATIONS
@@ -332,7 +332,7 @@ CREATE TABLE agent_notifications (
 ALTER TABLE agent_notifications ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON agent_notifications
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 16. TENANT_SETTINGS
@@ -408,7 +408,7 @@ CREATE TABLE tenant_settings (
 ALTER TABLE tenant_settings ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON tenant_settings
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 17. NOTIFICATION_TEMPLATES
@@ -428,7 +428,7 @@ CREATE TABLE notification_templates (
 ALTER TABLE notification_templates ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON notification_templates
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 18. TENANT_INTEGRATIONS
@@ -448,7 +448,7 @@ CREATE TABLE tenant_integrations (
 ALTER TABLE tenant_integrations ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON tenant_integrations
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- 19. TENANT_LOCKED_SETTINGS
@@ -464,7 +464,7 @@ CREATE TABLE tenant_locked_settings (
 ALTER TABLE tenant_locked_settings ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_isolation ON tenant_locked_settings
-  USING (tenant_id = (auth.jwt() ->> 'tenant_id')::uuid);
+  USING (tenant_id = ((auth.jwt() -> 'app_metadata') ->> 'tenant_id')::uuid);
 
 -- ============================================================================
 -- FINANCE SUMMARY VIEW
@@ -482,7 +482,7 @@ SELECT
   SUM(b.worker_payout) FILTER (WHERE b.status = 'completed') AS worker_payout_total,
   SUM(b.agency_share) FILTER (WHERE b.status = 'completed') AS agency_share_total
 FROM bookings b
-JOIN workers w ON w.id = b.worker_id
+LEFT JOIN workers w ON w.id = b.worker_id
 GROUP BY b.tenant_id, b.worker_id, w.pseudonym, w.btw_exempt, DATE_TRUNC('month', b.slot_date::timestamp);
 
 -- ============================================================================
@@ -502,6 +502,8 @@ CREATE OR REPLACE FUNCTION public.custom_access_token_hook(event jsonb)
 RETURNS jsonb
 LANGUAGE plpgsql
 STABLE
+SECURITY DEFINER
+SET search_path = public
 AS $$
 DECLARE
   claims jsonb;
@@ -521,8 +523,7 @@ BEGIN
   LIMIT 1;
 
   IF user_tenant_id IS NOT NULL THEN
-    claims := jsonb_set(claims, '{tenant_id}', to_jsonb(user_tenant_id::text));
-    claims := jsonb_set(claims, '{role}', '"agent"');
+    claims := jsonb_set(claims, '{app_metadata}', coalesce(claims->'app_metadata', '{}'::jsonb) || jsonb_build_object('tenant_id', user_tenant_id::text, 'user_role', 'agent'));
     RETURN jsonb_set(event, '{claims}', claims);
   END IF;
 
@@ -534,9 +535,7 @@ BEGIN
   LIMIT 1;
 
   IF user_tenant_id IS NOT NULL THEN
-    claims := jsonb_set(claims, '{tenant_id}', to_jsonb(user_tenant_id::text));
-    claims := jsonb_set(claims, '{role}', '"worker"');
-    claims := jsonb_set(claims, '{worker_id}', to_jsonb(user_worker_id::text));
+    claims := jsonb_set(claims, '{app_metadata}', coalesce(claims->'app_metadata', '{}'::jsonb) || jsonb_build_object('tenant_id', user_tenant_id::text, 'user_role', 'worker', 'worker_id', user_worker_id::text));
     RETURN jsonb_set(event, '{claims}', claims);
   END IF;
 
@@ -547,9 +546,7 @@ BEGIN
   LIMIT 1;
 
   IF user_tenant_id IS NOT NULL THEN
-    claims := jsonb_set(claims, '{tenant_id}', to_jsonb(user_tenant_id::text));
-    claims := jsonb_set(claims, '{role}', '"client"');
-    claims := jsonb_set(claims, '{client_id}', to_jsonb(user_client_id::text));
+    claims := jsonb_set(claims, '{app_metadata}', coalesce(claims->'app_metadata', '{}'::jsonb) || jsonb_build_object('tenant_id', user_tenant_id::text, 'user_role', 'client', 'client_id', user_client_id::text));
     RETURN jsonb_set(event, '{claims}', claims);
   END IF;
 
@@ -559,4 +556,7 @@ $$;
 
 GRANT USAGE ON SCHEMA public TO supabase_auth_admin;
 GRANT EXECUTE ON FUNCTION public.custom_access_token_hook TO supabase_auth_admin;
+GRANT SELECT ON public.agents TO supabase_auth_admin;
+GRANT SELECT ON public.workers TO supabase_auth_admin;
+GRANT SELECT ON public.clients TO supabase_auth_admin;
 REVOKE EXECUTE ON FUNCTION public.custom_access_token_hook FROM authenticated, anon, public;

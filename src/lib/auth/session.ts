@@ -15,17 +15,18 @@ export async function getAuthenticatedUser(): Promise<AuthenticatedUser | null> 
   const { data: { session } } = await supabase.auth.getSession();
   if (!session) return null;
 
-  // Decode JWT to get custom claims (tenant_id, role, worker_id, client_id)
+  // Decode JWT to get custom claims from app_metadata (tenant_id, user_role, worker_id, client_id)
   const payload = decodeJWTPayload(session.access_token);
-  if (!payload?.tenant_id || !payload?.role) return null;
+  const appMeta = payload?.app_metadata as Record<string, string> | undefined;
+  if (!appMeta?.tenant_id || !appMeta?.user_role) return null;
 
   return {
     id: user.id,
     email: user.email ?? '',
-    role: payload.role as UserRole,
-    tenantId: payload.tenant_id,
-    workerId: payload.worker_id,
-    clientId: payload.client_id,
+    role: appMeta.user_role as UserRole,
+    tenantId: appMeta.tenant_id,
+    workerId: appMeta.worker_id,
+    clientId: appMeta.client_id,
   };
 }
 

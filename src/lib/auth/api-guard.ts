@@ -46,9 +46,10 @@ export async function apiGuard(
     };
   }
 
-  // Decode JWT claims
+  // Decode JWT claims from app_metadata
   const payload = decodeJWTPayload(session.access_token);
-  if (!payload?.tenant_id || !payload?.role) {
+  const appMeta = payload?.app_metadata as Record<string, string> | undefined;
+  if (!appMeta?.tenant_id || !appMeta?.user_role) {
     return {
       error: NextResponse.json(
         { error: 'Invalid token claims. Missing tenant_id or role.' },
@@ -57,7 +58,7 @@ export async function apiGuard(
     };
   }
 
-  const role = payload.role as UserRole;
+  const role = appMeta.user_role as UserRole;
 
   // Check role if specified
   if (allowedRoles && !allowedRoles.includes(role)) {
@@ -76,7 +77,7 @@ export async function apiGuard(
   // Verify the tenant_id in JWT matches the slug in the URL
   // This prevents someone from using a valid token for tenant A to access tenant B's API
   if (urlSlug) {
-    const tenantCheck = await verifyTenantSlugMatch(payload.tenant_id, urlSlug);
+    const tenantCheck = await verifyTenantSlugMatch(appMeta.tenant_id, urlSlug);
     if (!tenantCheck) {
       return {
         error: NextResponse.json(
@@ -92,9 +93,9 @@ export async function apiGuard(
       id: authUser.id,
       email: authUser.email ?? '',
       role,
-      tenantId: payload.tenant_id,
-      workerId: payload.worker_id,
-      clientId: payload.client_id,
+      tenantId: appMeta.tenant_id,
+      workerId: appMeta.worker_id,
+      clientId: appMeta.client_id,
     },
   };
 }

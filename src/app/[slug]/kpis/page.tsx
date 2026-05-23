@@ -31,13 +31,25 @@ export default function WorkerKPIsPage() {
       const totalEarnings = completed.reduce((sum: number, b: { worker_payout: number | null }) =>
         sum + (b.worker_payout || 0), 0);
 
+      // Fetch rating stats
+      let avgRating: number | null = null;
+      let ratingCount = 0;
+      try {
+        const ratingRes = await fetch(`/${slug}/api/worker/rating`);
+        if (ratingRes.ok) {
+          const ratingData = await ratingRes.json();
+          avgRating = ratingData.avgRating;
+          ratingCount = ratingData.ratingCount;
+        }
+      } catch { /* ratings fetch optional */ }
+
       setData({
         totalBookings: bookings.length,
         completedBookings: completed.length,
         cancelledBookings: cancelled.length,
         totalEarnings,
-        avgRating: null, // Would need a separate API call
-        ratingCount: 0,
+        avgRating,
+        ratingCount,
       });
     } catch {
       // silently fail
@@ -74,11 +86,22 @@ export default function WorkerKPIsPage() {
           <p className="text-xs text-gray-500 mb-1">Total Earnings</p>
           <p className="text-2xl font-bold text-gray-900">€{(data?.totalEarnings ?? 0).toFixed(2)}</p>
         </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <p className="text-xs text-gray-500 mb-1">Avg Rating Given</p>
+          <p className="text-2xl font-bold text-amber-500">
+            {data?.avgRating != null ? `${data.avgRating} ★` : '—'}
+          </p>
+          <p className="text-xs text-gray-400">{data?.ratingCount ?? 0} ratings</p>
+        </div>
+        <div className="bg-white rounded-lg border border-gray-200 p-4">
+          <p className="text-xs text-gray-500 mb-1">No-Show Rate</p>
+          <p className="text-2xl font-bold text-orange-500">
+            {data && data.completedBookings > 0
+              ? `${((data.cancelledBookings / (data.completedBookings + data.cancelledBookings)) * 100).toFixed(1)}%`
+              : '0%'}
+          </p>
+        </div>
       </div>
-
-      <p className="text-xs text-gray-400 text-center">
-        Detailed analytics will be available in a future update.
-      </p>
     </div>
   );
 }
